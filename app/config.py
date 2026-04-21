@@ -12,5 +12,8 @@ class Settings(BaseSettings):
 
     max_places_per_project: int = 10
 
+    basic_auth_username: str = "admin"
+    basic_auth_password: str = "admin"
+
 
 settings = Settings()

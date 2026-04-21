@@ -45,12 +45,25 @@ is enough for a test task. In a real project I'd use Alembic.
 
 ## Environment variables
 
-| variable           | default                                                              | description                                 |
-|--------------------|----------------------------------------------------------------------|---------------------------------------------|
-| `DATABASE_URL`     | `postgresql+asyncpg://postgres:postgres@localhost:5432/travel`       | async SQLAlchemy URL                        |
-| `REDIS_URL`        | `redis://localhost:6379/0`                                           | Redis connection URL                        |
-| `ARTIC_BASE_URL`   | `https://api.artic.edu/api/v1`                                       | Art Institute API base URL                  |
-| `ARTIC_CACHE_TTL`  | `3600`                                                               | Cache TTL for artwork lookups, in seconds   |
+| variable                | default                                                              | description                                 |
+|-------------------------|----------------------------------------------------------------------|---------------------------------------------|
+| `DATABASE_URL`          | `postgresql+asyncpg://postgres:postgres@localhost:5432/travel`       | async SQLAlchemy URL                        |
+| `REDIS_URL`             | `redis://localhost:6379/0`                                           | Redis connection URL                        |
+| `ARTIC_BASE_URL`        | `https://api.artic.edu/api/v1`                                       | Art Institute API base URL                  |
+| `ARTIC_CACHE_TTL`       | `3600`                                                               | Cache TTL for artwork lookups, in seconds   |
+| `BASIC_AUTH_USERNAME`   | `admin`                                                              | Username for HTTP Basic Auth                |
+| `BASIC_AUTH_PASSWORD`   | `admin`                                                              | Password for HTTP Basic Auth                |
+
+## Authentication
+
+All `/projects` and `/projects/{id}/places` endpoints are protected with HTTP
+Basic Auth. Credentials come from `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD`
+(defaults: `admin` / `admin`). `/health` and the `/docs` Swagger UI are left
+open so the Docker healthcheck and API exploration still work.
+
+```bash
+curl -u admin:admin http://localhost:8000/projects
+```
 
 ## Endpoints
 
@@ -78,7 +91,7 @@ automatically flipped to `is_completed=true`.
 Create a project with two places in one shot:
 
 ```bash
-curl -X POST http://localhost:8000/projects \
+curl -u admin:admin -X POST http://localhost:8000/projects \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Chicago weekend",
@@ -102,7 +115,7 @@ curl -X POST http://localhost:8000/projects/1/places \
 Mark a place as visited:
 
 ```bash
-curl -X PATCH http://localhost:8000/projects/1/places/1 \
+curl -u admin:admin -X PATCH http://localhost:8000/projects/1/places/1 \
   -H "Content-Type: application/json" \
   -d '{"is_visited": true}'
 ```

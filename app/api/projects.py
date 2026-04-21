@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import require_basic_auth
 from app.database import get_session
 from app.models import Place, Project
 from app.schemas import (
@@ -14,7 +15,11 @@ from app.schemas import (
 from app.services.artic import ArticClient, ArticError, get_artic_client
 
 
-router = APIRouter(prefix="/projects", tags=["projects"])
+router = APIRouter(
+    prefix="/projects",
+    tags=["projects"],
+    dependencies=[Depends(require_basic_auth)],
+)
 
 
 async def _get_project_or_404(session: AsyncSession, project_id: int) -> Project:

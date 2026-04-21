@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import require_basic_auth
 from app.config import settings
 from app.database import get_session
 from app.models import Place, Project
@@ -11,7 +12,11 @@ from app.schemas import PlaceCreate, PlaceRead, PlaceUpdate
 from app.services.artic import ArticClient, ArticError, get_artic_client
 
 
-router = APIRouter(prefix="/projects/{project_id}/places", tags=["places"])
+router = APIRouter(
+    prefix="/projects/{project_id}/places",
+    tags=["places"],
+    dependencies=[Depends(require_basic_auth)],
+)
 
 
 async def _load_project(session: AsyncSession, project_id: int) -> Project:
